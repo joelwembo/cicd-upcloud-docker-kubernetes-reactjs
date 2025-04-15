@@ -14,6 +14,7 @@ env:
   DOCKER_IMAGE: joelwembo/frontend_app_demo
   KUBE_NAMESPACE: default
   CLUSTER_NAME: prodxcloud-cluster-dev
+  UPCLOUD_CLUSTER_ID: 0de3f068-f987-4df6-b15a-c0f667b239aa
 
 jobs:
   deploy:
@@ -47,10 +48,40 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:latest
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
 
+      - name: Install and Configure UpCloud CLI
+        run: |
+          # Download and install upctl
+          curl -sL https://github.com/UpCloudLtd/upcloud-cli/releases/latest/download/upctl-linux-amd64 -o upctl
+          chmod +x upctl
+          sudo mv upctl /usr/local/bin/
+          
+          # Verify installation
+          upctl --version
+          
+          # Set UpCloud credentials from GitHub Secrets
+          export UPCLOUD_USERNAME=${{ secrets.UPCLOUD_USERNAME }}
+          export UPCLOUD_PASSWORD=${{ secrets.UPCLOUD_PASSWORD }}
+          
+          # Generate kubeconfig
+          upctl kubernetes config ${{ env.UPCLOUD_CLUSTER_ID }} --write prodxcloud-cluster-dev_kubeconfig.yaml
+          
+          # Set KUBECONFIG environment variable
+          export KUBECONFIG=$(pwd)/prodxcloud-cluster-dev_kubeconfig.yaml
+          
+          # Verify cluster access
+          kubectl cluster-info
+
       - name: Deploy to UpCloud
         run: |
-          echo "${{ secrets.UPCLOUD_KUBECONFIG }}" > kubeconfig.yaml
-          export KUBECONFIG=kubeconfig.yaml
+          # Save kubeconfig with the correct filename
+          echo "${{ secrets.UPCLOUD_KUBECONFIG }}" > prodxcloud-cluster-dev_kubeconfig.yaml
+          export KUBECONFIG=prodxcloud-cluster-dev_kubeconfig.yaml
+          
+          # List available contexts
+          echo "Available contexts:"
+          kubectl config get-contexts
+          
+          # Use the correct context
           kubectl config use-context ${{ env.CLUSTER_NAME }}
           
           # Create namespace if it doesn't exist
@@ -77,8 +108,11 @@ jobs:
 
       - name: Check Deployment Status
         run: |
-          echo "${{ secrets.UPCLOUD_KUBECONFIG }}" > kubeconfig.yaml
-          export KUBECONFIG=kubeconfig.yaml
+          # Save kubeconfig with the correct filename
+          echo "${{ secrets.UPCLOUD_KUBECONFIG }}" > prodxcloud-cluster-dev_kubeconfig.yaml
+          export KUBECONFIG=prodxcloud-cluster-dev_kubeconfig.yaml
+          
+          # Use the correct context
           kubectl config use-context ${{ env.CLUSTER_NAME }}
           
           echo "=== Pods Status ==="
