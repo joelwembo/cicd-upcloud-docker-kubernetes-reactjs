@@ -51,12 +51,13 @@ jobs:
       - name: Install and Configure UpCloud CLI
         run: |
           # Download and install upctl
-          curl -sL https://github.com/UpCloudLtd/upcloud-cli/releases/latest/download/upctl-linux-amd64 -o upctl
+          wget -q https://github.com/UpCloudLtd/upcloud-cli/releases/latest/download/upctl-linux-amd64 -O upctl
           chmod +x upctl
           sudo mv upctl /usr/local/bin/
           
           # Verify installation
-          upctl --version
+          which upctl
+          upctl version
           
           # Set UpCloud credentials from GitHub Secrets
           export UPCLOUD_USERNAME=${{ secrets.UPCLOUD_USERNAME }}
