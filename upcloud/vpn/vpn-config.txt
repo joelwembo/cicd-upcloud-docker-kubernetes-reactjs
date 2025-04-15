@@ -1,0 +1,49 @@
+VPN Gateway Configuration Details
+============================
+
+UpCloud VPN Gateway:
+------------------
+Name: vpn-gw-us-prodxcloud-connection-1
+Local IP: 209.50.61.170
+Remote IP (Azure): 86.48.10.176
+
+Tunnel Configuration:
+------------------
+Tunnel Name: tunnel-1
+Local IP Address: Internal-vpn-prodxcloud
+Remote IP Address: 86.48.10.176
+
+Network Routes:
+-------------
+Local Routes (UpCloud):
+- Network: 10.0.1.0/24
+- Route Name: local-route-1
+
+Remote Routes (Azure):
+- Network: 192.168.1.0/24
+- Route Name: remote-route-1
+
+Note: Remote routes should not overlap with local routes
+The remote network range is designated for Azure VM network.
+
+```mermaid
+graph LR
+    subgraph UpCloud
+        UVG[VPN Gateway\n209.50.61.170]
+        ULN[Local Network\n10.0.1.0/24]
+    end
+    
+    subgraph Azure
+        AVM[Azure VM]
+        ARN[Remote Network\n192.168.1.0/24]
+    end
+    
+    UVG ---|VPN Tunnel| AVM
+    ULN --- UVG
+    AVM --- ARN
+    
+    style UVG fill:#purple,stroke:#333,stroke-width:2px
+    style AVM fill:#0078D4,stroke:#333,stroke-width:2px
+    style ULN fill:#f9f,stroke:#333,stroke-width:2px
+    style ARN fill:#0078D4,stroke:#333,stroke-width:2px
+``` 

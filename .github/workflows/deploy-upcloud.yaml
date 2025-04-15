@@ -1,0 +1,70 @@
+name: Deploy Frontend App (ReactJS) to UpCloud Kubernetes
+
+on:
+  push:
+    branches: [ main, master, dev ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-upcloud.yaml'
+      - 'deployment.yml'
+      - 'service.yml'
+  pull_request:
+    branches: [ main, master, dev ]
+
+env:
+  DOCKER_IMAGE: joelwembo/frontend_app_demo
+  KUBE_NAMESPACE: default
+  CLUSTER_NAME: prodxcloud-cluster-dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Build React App
+        run: |
+          cd frontend
+          npm install --force
+          npm run build
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:latest
+            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+
+      - name: Deploy to UpCloud
+        run: |
+          echo "${{ secrets.UPCLOUD_KUBECONFIG }}" > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
+          kubectl config use-context ${{ env.CLUSTER_NAME }}
+          
+          # Create namespace if it doesn't exist
+          kubectl create namespace ${{ env.KUBE_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Apply Kubernetes manifests
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
+          
+          # Update deployment with new image
+          kubectl set image deployment/frontend frontend=${{ env.DOCKER_IMAGE }}:latest -n ${{ env.KUBE_NAMESPACE }}
+          
+          # Wait for rollout to complete
+          kubectl rollout status deployment/frontend -n ${{ env.KUBE_NAMESPACE }}
+ 

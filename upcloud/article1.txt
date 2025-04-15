@@ -1,0 +1,64 @@
+# Generate a new SSH key in OpenSSH format in the current directory
+ssh-keygen -t rsa -b 4096 -m PEM -f ./id_rsa
+
+# Display the public key
+cat ./id_rsa.pub
+
+
+---
+
+How to Build a CI/CD Pipeline for UpCloud Kubernetes with Terraform, GitHub Actions & React.js
+Step-by-step guide to zero-downtime Kubernetes deployments: Automate your React.js CI/CD pipeline on UpCloud using Terraform infrastructure as code and GitHub Actions workflows for maximum availability and scalability.
+
+This manual explores how Terraform fundamentally alters infrastructure management, enabling teams with scalable, code-centric methodologies. Discover its role in accelerating software deployment and fostering agile, robust pipelines. Whether you're an experienced practitioner or a novice, this guide provides insights into Terraform's impact on modern DevOps.
+"To enhance readability, this article is divided into chapters. The second part, 'The Guide to Terraform DevOps: Kubernetes Tools in Infrastructure as Code (IaC),' will be covered separately."
+Abstract
+DevOps in a multi-environment setup focuses on automation, consistency, and collaboration to ensure smooth software delivery across development stages. This guide presents an experimental approach to implementing multi-project, multi-environment deployments using UpCloud Managed Kubernetes, Terraform, and GitHub Actions.
+"Productivity is never an accident. It is always the result of a commitment to excellence, intelligent planning, and focused effort." - Paul J. Meyer
+Table of Contents
+Introduction
+Prerequisites
+Chapter 1: Account and System Setup
+Chapter 2: Docker Containers and Images
+Chapter 3: Terraform DevOps
+Chapter 4: Multi-Environment CI/CD with GitHub Actions
+Chapter 5: UpCloud Kubernetes Cluster Administration
+Chapter 6: Expected Results
+Discussion
+Conclusions
+About Me
+References
+
+---
+
+🚀 Exclusive UpCloud Offer - Get Started with a Discount!
+Looking for high-performance cloud hosting with faster speeds, better reliability, and competitive pricing? UpCloud is the perfect choice!
+🎉 Sign up today and claim your special discount on your first deposit! 50€ free credits and 30 days extended trial Click here to register now!
+👉 Start with a free trial and experience the difference!
+
+Introduction
+Continuous Integration (CI) and Continuous Deployment (CD) are fundamental in modern software development.
+CI involves frequent code integration into a shared repository, verified via automated builds and tests.
+CD extends CI by automatically deploying changes to testing or production environments.
+
+This automation reduces manual intervention, accelerates feedback, and enhances agility in software delivery.
+Why a Multi-Environment Approach?
+A multi-environment deployment approach ensures:
+Isolation between development, testing, and production.
+Automated pipelines for moving code between environments.
+Faster development cycles with reduced risk.
+
+Terraform DevOps: Defining Your Infrastructure Blueprint
+Terraform replaces manual infrastructure provisioning with code (HCL), enabling:
+Version-controlled infrastructure alongside application code.
+Automated deployments, reducing human error.
+Cloud-agnostic flexibility, working with UpCloud, AWS, Azure, and more.
+
+This guide demonstrates CI/CD pipelines for UpCloud Kubernetes workloads, integrating:
+GitHub Actions for workflows.
+Terraform for provisioning.
+SonarCloud for code quality.
+Trivy for vulnerability scanning.
+
+We'll use a React-based e-commerce app as a case study.
+Multi-Stage Review Process Example

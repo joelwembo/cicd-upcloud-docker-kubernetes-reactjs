@@ -1,0 +1,27 @@
+tunnel 1 : 7ciGRfGUdiqDzYd9go5oOK9CoW7SqFcF
+7ciGRfGUdiqDzYd9go5oOK9CoW7SqFcF
+
+	
+vpn-gw-us-prodxcloud-connection-1
+	
+Copy to clipboard
+209.50.61.170
+Copy to clipboard
+86.48.10.176
+Name
+Tunnels
+Tunnel name
+tunnel-1
+Local IP address
+Internal-vpn-prodxcloud
+Remote IP address
+86.48.10.176
+Local routes
+UpCloud local address or Private Network ranges that will be routed and made accessible through the VPN.
+UpCloud route
+Route name
+UpCloud subnet that will be routed
+Remote routes
+Remote / on-premise network address ranges routed through the VPN. The network range should not overlap with local routes.
+Remote route
+Route name
