@@ -50,13 +50,33 @@ jobs:
 
       - name: Install and Configure UpCloud CLI
         run: |
+          # Install required packages
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+          
           # Download and install upctl
-          wget -q https://github.com/UpCloudLtd/upcloud-cli/releases/latest/download/upctl-linux-amd64 -O upctl
+          UPCTL_VERSION=$(curl -s https://api.github.com/repos/UpCloudLtd/upcloud-cli/releases/latest | jq -r .tag_name)
+          echo "Installing UpCloud CLI version: $UPCTL_VERSION"
+          
+          curl -sL "https://github.com/UpCloudLtd/upcloud-cli/releases/download/${UPCTL_VERSION}/upctl-linux-amd64" -o upctl
+          
+          # Verify the download
+          if [ ! -f upctl ]; then
+            echo "Failed to download upctl"
+            exit 1
+          fi
+          
+          # Make it executable and move to PATH
           chmod +x upctl
           sudo mv upctl /usr/local/bin/
           
           # Verify installation
-          which upctl
+          if ! command -v upctl &> /dev/null; then
+            echo "upctl not found in PATH"
+            exit 1
+          fi
+          
+          echo "UpCloud CLI version:"
           upctl version
           
           # Set UpCloud credentials from GitHub Secrets
@@ -65,6 +85,12 @@ jobs:
           
           # Generate kubeconfig
           upctl kubernetes config ${{ env.UPCLOUD_CLUSTER_ID }} --write prodxcloud-cluster-dev_kubeconfig.yaml
+          
+          # Verify kubeconfig was created
+          if [ ! -f prodxcloud-cluster-dev_kubeconfig.yaml ]; then
+            echo "Failed to generate kubeconfig"
+            exit 1
+          fi
           
           # Set KUBECONFIG environment variable
           export KUBECONFIG=$(pwd)/prodxcloud-cluster-dev_kubeconfig.yaml
