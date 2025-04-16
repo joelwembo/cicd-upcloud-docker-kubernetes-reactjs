@@ -104,8 +104,12 @@ jobs:
           echo "Available contexts:"
           kubectl config get-contexts
           
-          # Use the correct context
-          kubectl config use-context ${{ env.CLUSTER_NAME }}
+          # Get the current context name
+          CURRENT_CONTEXT=$(kubectl config current-context)
+          echo "Current context: $CURRENT_CONTEXT"
+          
+          # Use the current context instead of hardcoding
+          kubectl config use-context $CURRENT_CONTEXT
           
           # Create namespace if it doesn't exist
           kubectl create namespace ${{ env.KUBE_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
@@ -135,8 +139,12 @@ jobs:
           echo "${{ secrets.UPCLOUD_KUBECONFIG }}" > prodxcloud-cluster-dev_kubeconfig.yaml
           export KUBECONFIG=prodxcloud-cluster-dev_kubeconfig.yaml
           
-          # Use the correct context
-          kubectl config use-context ${{ env.CLUSTER_NAME }}
+          # Get the current context name
+          CURRENT_CONTEXT=$(kubectl config current-context)
+          echo "Current context: $CURRENT_CONTEXT"
+          
+          # Use the current context instead of hardcoding
+          kubectl config use-context $CURRENT_CONTEXT
           
           echo "=== Pods Status ==="
           kubectl get pods -n ${{ env.KUBE_NAMESPACE }} -o wide
