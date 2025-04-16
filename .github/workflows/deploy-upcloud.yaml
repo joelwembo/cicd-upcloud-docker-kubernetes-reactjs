@@ -17,10 +17,12 @@ env:
   UPCLOUD_CLUSTER_ID: 0de3f068-f987-4df6-b15a-c0f667b239aa
 
 jobs:
-  deploy:
+  build-and-push:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -48,7 +50,15 @@ jobs:
             ${{ env.DOCKER_IMAGE }}:latest
             ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
 
-      - name: Install and Configure UpCloud CLI
+  setup-kubernetes:
+    name: Setup Kubernetes Environment
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install UpCloud CLI
         run: |
           # Install required packages
           sudo apt-get update
@@ -94,7 +104,7 @@ jobs:
           # Verify cluster access
           kubectl cluster-info
 
-      - name: Deploy to UpCloud
+      - name: Configure Kubernetes
         run: |
           # Save kubeconfig with the correct filename
           echo "${{ secrets.UPCLOUD_KUBECONFIG }}" > prodxcloud-cluster-dev_kubeconfig.yaml
@@ -122,6 +132,27 @@ jobs:
             --docker-email=${{ secrets.DOCKERHUB_EMAIL }} \
             -n ${{ env.KUBE_NAMESPACE }} \
             --dry-run=client -o yaml | kubectl apply -f -
+
+  deploy:
+    name: Deploy to Kubernetes
+    needs: setup-kubernetes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy Application
+        run: |
+          # Save kubeconfig with the correct filename
+          echo "${{ secrets.UPCLOUD_KUBECONFIG }}" > prodxcloud-cluster-dev_kubeconfig.yaml
+          export KUBECONFIG=prodxcloud-cluster-dev_kubeconfig.yaml
+          
+          # Get the current context name
+          CURRENT_CONTEXT=$(kubectl config current-context)
+          echo "Current context: $CURRENT_CONTEXT"
+          
+          # Use the current context instead of hardcoding
+          kubectl config use-context $CURRENT_CONTEXT
           
           # Apply Kubernetes manifests
           kubectl apply -f deployment.yml
@@ -133,6 +164,14 @@ jobs:
           # Wait for rollout to complete
           kubectl rollout status deployment/frontend -n ${{ env.KUBE_NAMESPACE }}
 
+  verify:
+    name: Verify Deployment
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
       - name: Check Deployment Status
         run: |
           # Save kubeconfig with the correct filename
