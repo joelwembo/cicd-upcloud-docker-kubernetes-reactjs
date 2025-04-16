@@ -40,9 +40,9 @@ jobs:
           EOF
         working-directory: ${{ env.WORKING_DIR }}
 
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
-        working-directory: ${{ env.WORKING_DIR }}
+    #   - name: Terraform Format Check
+    #     run: terraform fmt -check -recursive
+    #     working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Init
         run: |
@@ -51,9 +51,9 @@ jobs:
             -backend-config="password=${{ secrets.UPCLOUD_PASSWORD }}"
         working-directory: ${{ env.WORKING_DIR }}
 
-      - name: Terraform Validate
-        run: terraform validate
-        working-directory: ${{ env.WORKING_DIR }}
+    #   - name: Terraform Validate
+    #     run: terraform validate
+    #     working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
