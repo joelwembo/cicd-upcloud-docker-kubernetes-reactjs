@@ -43,7 +43,6 @@ provider "upcloud" {
   password = var.upcloud_password
 }
 
-
 resource "upcloud_storage" "primary_disk" {
   size  = 60
   tier  = "maxiops"
@@ -74,8 +73,8 @@ resource "upcloud_network" "My_Network" {
     address            = "10.0.3.0/24"
     dhcp               = true
     dhcp_default_route = false
-    family             = "IPv4"
-    gateway            = "10.0.3.1"
+    family            = "IPv4"
+    gateway           = "10.0.3.1"
   }
 }
 
@@ -89,18 +88,18 @@ resource "upcloud_server" "_0de3f068-f987-4df6-b15a-c0f667b239aa_prodxcloud-clus
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "private"
-    network           = upcloud_network.My_Network.id
+    type             = "private"
+    network          = upcloud_network.My_Network.id
   }
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "utility"
+    type             = "utility"
   }
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "public"
+    type             = "public"
   }
 
   storage_devices {
@@ -120,18 +119,18 @@ resource "upcloud_server" "_0de3f068-f987-4df6-b15a-c0f667b239aa_prodxcloud-clus
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "private"
-    network           = upcloud_network.My_Network.id
+    type             = "private"
+    network          = upcloud_network.My_Network.id
   }
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "utility"
+    type             = "utility"
   }
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "public"
+    type             = "public"
   }
 
   storage_devices {
@@ -151,18 +150,18 @@ resource "upcloud_server" "_0de3f068-f987-4df6-b15a-c0f667b239aa_prodxcloud-clus
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "private"
-    network           = upcloud_network.My_Network.id
+    type             = "private"
+    network          = upcloud_network.My_Network.id
   }
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "utility"
+    type             = "utility"
   }
 
   network_interface {
     ip_address_family = "IPv4"
-    type              = "public"
+    type             = "public"
   }
 
   storage_devices {
@@ -201,11 +200,11 @@ output "cluster_endpoint" {
 output "node_pool_details" {
   description = "Details about the node pool"
   value = {
-    size        = var.node_size
-    node_count  = var.node_count
-    zone        = "us-sjo1"
-    total_cpus  = var.node_count * 2  # 2 CPUs per node
-    total_ram   = var.node_count * 4  # 4GB per node
+    size       = var.node_size
+    node_count = var.node_count
+    zone       = "us-sjo1"
+    total_cpus = var.node_count * 2  # 2 CPUs per node
+    total_ram  = var.node_count * 4  # 4GB per node
   }
 }
 
@@ -231,10 +230,10 @@ output "load_balancer_ips" {
 output "cluster_status" {
   description = "Current status of the cluster"
   value = {
-    status      = "RUNNING"
-    health      = "HEALTHY"
-    version     = "1.27.3"
-    created_at  = "2024-01-20T10:00:00Z"
-    updated_at  = "2024-01-20T10:30:00Z"
+    status     = "RUNNING"
+    health     = "HEALTHY"
+    version    = "1.27.3"
+    created_at = "2024-01-20T10:00:00Z"
+    updated_at = "2024-01-20T10:30:00Z"
   }
 }
