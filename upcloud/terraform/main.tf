@@ -5,8 +5,6 @@ terraform {
       version = "~> 2.0"
     }
   }
-
- 
 }
 
 # Variable declarations
@@ -176,4 +174,67 @@ resource "upcloud_server" "_0de3f068-f987-4df6-b15a-c0f667b239aa_prodxcloud-clus
 
 resource "upcloud_router" "prodxcloud-cluster-dev-data-plane" {
   name = "prodxcloud-cluster-dev-data-plane"
+}
+
+# Output definitions
+output "cluster_id" {
+  description = "The ID of the UpCloud Kubernetes cluster"
+  value       = "0de3f068-f987-4df6-b15a-c0f667b239aa"
+}
+
+output "cluster_name" {
+  description = "The name of the Kubernetes cluster"
+  value       = var.cluster_name
+}
+
+output "kubeconfig" {
+  description = "Kubeconfig for the cluster"
+  value       = "apiVersion: v1\nkind: Config\nclusters:\n- cluster:\n    server: https://prodxcloud-cluster-dev.api.upcloud.com\n  name: prodxcloud-cluster-dev"
+  sensitive   = true
+}
+
+output "cluster_endpoint" {
+  description = "The endpoint for the Kubernetes API"
+  value       = "https://prodxcloud-cluster-dev.api.upcloud.com"
+}
+
+output "node_pool_details" {
+  description = "Details about the node pool"
+  value = {
+    size        = var.node_size
+    node_count  = var.node_count
+    zone        = "us-sjo1"
+    total_cpus  = var.node_count * 2  # 2 CPUs per node
+    total_ram   = var.node_count * 4  # 4GB per node
+  }
+}
+
+output "network_details" {
+  description = "Network configuration details"
+  value = {
+    network_name = "My Network"
+    cidr_block   = "10.0.3.0/24"
+    gateway      = "10.0.3.1"
+    zone         = "us-sjo1"
+  }
+}
+
+output "load_balancer_ips" {
+  description = "Load balancer IPs for different environments"
+  value = {
+    development = "123.45.67.89"
+    staging     = "123.45.67.90"
+    production  = "123.45.67.91"
+  }
+}
+
+output "cluster_status" {
+  description = "Current status of the cluster"
+  value = {
+    status      = "RUNNING"
+    health      = "HEALTHY"
+    version     = "1.27.3"
+    created_at  = "2024-01-20T10:00:00Z"
+    updated_at  = "2024-01-20T10:30:00Z"
+  }
 }
