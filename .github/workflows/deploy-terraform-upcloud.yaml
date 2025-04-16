@@ -109,11 +109,12 @@ jobs:
 
       - name: Upload Terraform State
         if: success() && github.event_name == 'push'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: terraform-state
           path: ${{ env.WORKING_DIR }}/.terraform
           retention-days: 5
+          if-no-files-found: warn
 
   notify:
     name: 📢 Notification
