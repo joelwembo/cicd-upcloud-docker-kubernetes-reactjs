@@ -203,8 +203,8 @@ output "node_pool_details" {
     size       = var.node_size
     node_count = var.node_count
     zone       = "us-sjo1"
-    total_cpus = var.node_count * 2  # 2 CPUs per node
-    total_ram  = var.node_count * 4  # 4GB per node
+    total_cpus = var.node_count * 2
+    total_ram  = var.node_count * 4
   }
 }
 
