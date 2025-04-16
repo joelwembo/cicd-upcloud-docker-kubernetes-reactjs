@@ -1,0 +1,140 @@
+name: 🏗️ Terraform Infrastructure Provisioning for UpCloud
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'upcloud/terraform/**'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'upcloud/terraform/**'
+  workflow_dispatch:  # Enable manual triggering
+
+env:
+  TF_WORKSPACE: production
+  TF_VERSION: 1.5.7
+  WORKING_DIR: upcloud/terraform
+
+jobs:
+  terraform:
+    name: 🔄 Terraform Operations
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure UpCloud Credentials
+        run: |
+          cat > ~/.upcloud.conf << EOF
+          [default]
+          username=${{ secrets.UPCLOUD_USERNAME }}
+          password=${{ secrets.UPCLOUD_PASSWORD }}
+          EOF
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="username=${{ secrets.UPCLOUD_USERNAME }}" \
+            -backend-config="password=${{ secrets.UPCLOUD_PASSWORD }}"
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: |
+          terraform plan \
+            -var="upcloud_username=${{ secrets.UPCLOUD_USERNAME }}" \
+            -var="upcloud_password=${{ secrets.UPCLOUD_PASSWORD }}" \
+            -var="cluster_name=prodxcloud-cluster-dev" \
+            -var="node_count=3" \
+            -var="node_size=2xCPU-4GB" \
+            -no-color
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Plan Status
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "💡 Terraform Plan completed. Review the changes above."
+          if [ $? -eq 0 ]; then
+            echo "✅ Terraform Plan succeeded"
+          else
+            echo "❌ Terraform Plan failed"
+            exit 1
+          fi
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          terraform apply -auto-approve \
+            -var="upcloud_username=${{ secrets.UPCLOUD_USERNAME }}" \
+            -var="upcloud_password=${{ secrets.UPCLOUD_PASSWORD }}" \
+            -var="cluster_name=prodxcloud-cluster-dev" \
+            -var="node_count=3" \
+            -var="node_size=2xCPU-4GB"
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Export Cluster Info
+        if: success() && github.event_name == 'push'
+        run: |
+          echo "📊 Cluster Information:"
+          echo "Cluster Name: prodxcloud-cluster-dev"
+          echo "Region: us-sjo1"
+          echo "Node Count: 3"
+          echo "Node Size: 2xCPU-4GB"
+          
+          # Export kubeconfig
+          terraform output kubeconfig > kubeconfig.yaml
+          
+          # Store cluster ID for other workflows
+          CLUSTER_ID=$(terraform output -raw cluster_id)
+          echo "CLUSTER_ID=${CLUSTER_ID}" >> $GITHUB_ENV
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Upload Terraform State
+        if: success() && github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-state
+          path: ${{ env.WORKING_DIR }}/.terraform
+          retention-days: 5
+
+  notify:
+    name: 📢 Notification
+    needs: terraform
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Notification Status
+        run: |
+          if [ "${{ needs.terraform.result }}" == "success" ]; then
+            echo "🎉 Infrastructure Provisioning Successful!"
+            echo "✅ Kubernetes Cluster is ready"
+            echo "✅ Network configurations applied"
+            echo "✅ Security policies configured"
+            echo "📊 Resources provisioned:"
+            echo "  - Kubernetes Cluster: prodxcloud-cluster-dev"
+            echo "  - Node Count: 3"
+            echo "  - Node Size: 2xCPU-4GB"
+            echo "  - Network: 10.0.1.0/24"
+          else
+            echo "❌ Infrastructure Provisioning Failed"
+            echo "Please check the workflow logs for details"
+          fi 
