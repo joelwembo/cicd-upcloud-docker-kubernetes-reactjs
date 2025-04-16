@@ -7,7 +7,41 @@ terraform {
   }
 }
 
-provider "upcloud" {}
+# Variable declarations
+variable "upcloud_username" {
+  description = "UpCloud username"
+  type        = string
+  sensitive   = true
+}
+
+variable "upcloud_password" {
+  description = "UpCloud password"
+  type        = string
+  sensitive   = true
+}
+
+variable "cluster_name" {
+  description = "Name of the Kubernetes cluster"
+  type        = string
+  default     = "prodxcloud-cluster-dev"
+}
+
+variable "node_count" {
+  description = "Number of nodes in the cluster"
+  type        = number
+  default     = 3
+}
+
+variable "node_size" {
+  description = "Size of the nodes"
+  type        = string
+  default     = "2xCPU-4GB"
+}
+
+provider "upcloud" {
+  username = var.upcloud_username
+  password = var.upcloud_password
+}
 
 
 resource "upcloud_storage" "primary_disk" {
