@@ -12,21 +12,21 @@ provider "upcloud" {}
 
 resource "upcloud_storage" "primary_disk" {
   size  = 60
-  tier  = "standard"
+  tier  = "maxiops"
   title = "primary disk"
   zone  = "us-sjo1"
 }
 
 resource "upcloud_storage" "primary_disk_2" {
   size  = 60
-  tier  = "standard"
+  tier  = "maxiops"
   title = "primary disk"
   zone  = "us-sjo1"
 }
 
 resource "upcloud_storage" "primary_disk_3" {
   size  = 60
-  tier  = "standard"
+  tier  = "maxiops"
   title = "primary disk"
   zone  = "us-sjo1"
 }
