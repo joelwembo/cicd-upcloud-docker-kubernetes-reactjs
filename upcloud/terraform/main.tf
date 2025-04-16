@@ -5,6 +5,10 @@ terraform {
       version = "~> 2.0"
     }
   }
+
+  backend "local" {
+    path = "terraform.tfstate"
+  }
 }
 
 # Variable declarations
@@ -71,11 +75,11 @@ resource "upcloud_network" "My_Network" {
   router = upcloud_router.prodxcloud-cluster-dev-data-plane.id
 
   ip_network {
-    address            = "10.0.2.0/24"
+    address            = "10.0.3.0/24"
     dhcp               = true
     dhcp_default_route = false
     family             = "IPv4"
-    gateway            = "10.0.2.1"
+    gateway            = "10.0.3.1"
   }
 }
 
